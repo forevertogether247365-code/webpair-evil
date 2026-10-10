@@ -56,11 +56,13 @@ function latestStatus(log) {
 
 const page = fs.readFileSync(new URL('./index.html', import.meta.url));
 
+let CACHE={code:null,status:'waiting',at:0};
+async function refresh(){try{const log=await logTail();CACHE={code:latestCode(log),status:latestStatus(log),at:Date.now()}}catch(e){}}
+setInterval(refresh,5000);refresh();
 const server = http.createServer(async (req, res) => {
   if (req.url === '/api/status') {
-    const log = await logTail();
     res.writeHead(200, { 'Content-Type': 'application/json', 'Access-Control-Allow-Origin': '*' });
-    return res.end(JSON.stringify({ code: latestCode(log), status: latestStatus(log), at: Date.now() }));
+    return res.end(JSON.stringify(CACHE));
   }
   if (req.url === '/api/pair' && req.method === 'POST') {
     let num = '';
