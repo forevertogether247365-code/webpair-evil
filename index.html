@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>☠ EVIL⁶⁶⁶MD — WEBPAIR ☠</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;background:#000;overflow:hidden;font-family:'Courier New',monospace;color:#c00}
+body{display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative}
+canvas#lightning{position:fixed;inset:0;z-index:1;pointer-events:none}
+.vignette{position:fixed;inset:0;z-index:2;pointer-events:none;background:radial-gradient(ellipse at center,transparent 40%,rgba(0,0,0,.9) 100%)}
+.wrap{position:relative;z-index:3;text-align:center;padding:24px;max-width:420px;width:100%}
+h1{font-size:2rem;letter-spacing:4px;color:#ff2222;text-shadow:0 0 8px #f00,0 0 24px #900,0 0 60px #500;animation:flicker 3s infinite}
+@keyframes flicker{0%,100%{opacity:1}92%{opacity:1}93%{opacity:.4}94%{opacity:1}96%{opacity:.6}97%{opacity:1}}
+.sub{color:#800;margin:6px 0 24px;font-size:.8rem;letter-spacing:2px}
+.box{background:rgba(10,0,0,.85);border:1px solid #500;border-radius:8px;padding:22px;box-shadow:0 0 30px rgba(255,0,0,.15) inset,0 0 50px rgba(255,0,0,.08)}
+input{width:100%;background:#000;border:1px solid #600;color:#f33;padding:12px;font-size:1.1rem;font-family:inherit;text-align:center;letter-spacing:2px;border-radius:4px;outline:none}
+input:focus{border-color:#f00;box-shadow:0 0 12px rgba(255,0,0,.4)}
+button{width:100%;margin-top:14px;background:#200;border:1px solid #800;color:#f55;padding:12px;font-size:1rem;letter-spacing:3px;font-family:inherit;cursor:pointer;border-radius:4px;text-transform:uppercase}
+button:hover{background:#400;color:#fff;box-shadow:0 0 20px rgba(255,0,0,.5)}
+button:disabled{opacity:.4;cursor:wait}
+.code{margin-top:20px;font-size:2.6rem;font-weight:bold;color:#fff;text-shadow:0 0 10px #f00,0 0 40px #f00;letter-spacing:6px;min-height:56px}
+.status{margin-top:10px;font-size:.85rem;color:#a66;letter-spacing:1px}
+.status.ok{color:#3f3;text-shadow:0 0 10px #0f0}
+.status.err{color:#f33}
+.skull{font-size:3.4rem;margin-bottom:10px;filter:drop-shadow(0 0 12px #f00);animation:pulse 2s infinite}
+@keyframes pulse{50%{transform:scale(1.08);filter:drop-shadow(0 0 24px #f00)}}
+.shake{animation:shake .5s}
+@keyframes shake{0%,100%{transform:translate(0,0)}20%{transform:translate(-8px,3px)}40%{transform:translate(7px,-4px)}60%{transform:translate(-5px,-3px)}80%{transform:translate(4px,4px)}}
+.roar{position:fixed;inset:0;z-index:4;background:#fff;opacity:0;pointer-events:none;transition:opacity .1s}
+footer{margin-top:18px;font-size:.65rem;color:#400;letter-spacing:2px}
+</style>
+</head>
+<body>
+<canvas id="lightning"></canvas>
+<div class="vignette"></div>
+<div class="roar" id="roar"></div>
+<div class="wrap" id="wrap">
+  <div class="skull">💀</div>
+  <h1>EVIL⁶⁶⁶MD</h1>
+  <div class="sub">〚 WEBPAIR — LINK IF YOU DARE 〛</div>
+  <div class="box">
+    <input id="number" placeholder="+234 8XX XXX XXXX" autocomplete="off">
+    <button id="go">⚡ SUMMON PAIRING ⚡</button>
+    <div class="code" id="code">····-····</div>
+    <div class="status" id="status">awaiting sacrifice…</div>
+  </div>
+  <footer>settings ▸ linked devices ▸ link with phone number instead</footer>
+</div>
+<script>
+const cv=document.getElementById('lightning'),cx=cv.getContext('2d');
+function rs(){cv.width=innerWidth;cv.height=innerHeight}rs();addEventListener('resize',rs);
+let bolts=[],flash=0,nextStrike=performance.now()+1500;
+function bolt(x,y,len,ang){const pts=[[x,y]];while(len>8){x+=Math.cos(ang)*len*.25+(Math.random()-.5)*30;y+=Math.sin(ang)*len*.25;pts.push([x,y]);ang+=(Math.random()-.5)*.7;len*=.78}return pts}
+function draw(t){
+ cx.clearRect(0,0,cv.width,cv.height);
+ if(t>nextStrike){bolts=[bolt(Math.random()*cv.width,0,cv.height*.75,Math.PI/2)];flash=1;nextStrike=t+2000+Math.random()*4000;
+   document.getElementById('wrap').classList.remove('shake');void document.getElementById('wrap').offsetWidth;document.getElementById('wrap').classList.add('shake');
+   const ro=document.getElementById('roar');ro.style.opacity=.35;setTimeout(()=>ro.style.opacity=0,90);}
+ bolts=bolts.filter((b,i)=>t%1===0);
+ if(flash>0){cx.fillStyle=`rgba(255,60,60,${flash*.06})`;cx.fillRect(0,0,cv.width,cv.height);flash-=.02;bolts.forEach(b=>{cx.strokeStyle=`rgba(255,${40+Math.random()*60|0},60,${flash})`;cx.lineWidth=2.5;cx.shadowColor='#f00';cx.shadowBlur=18;cx.beginPath();cx.moveTo(b[0][0],b[0][1]);b.slice(1).forEach(p=>cx.lineTo(p[0],p[1]));cx.stroke();cx.shadowBlur=0;});}
+ requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+// polling
+const codeEl=document.getElementById('code'),stEl=document.getElementById('status'),btn=document.getElementById('go');
+async function poll(){try{const r=await fetch('/api/status');const j=await r.json();
+ if(j.code){codeEl.textContent=j.code;
+   if(j.status==='connected'){stEl.textContent='☠ BOUND — the pair is complete ☠';stEl.className='status ok'}
+   else if(j.status==='failed'){stEl.textContent='✖ the spirits rejected the code';stEl.className='status err'}
+   else if(j.status==='logged-out'){stEl.textContent='⚠ severed — summon again';stEl.className='status err'}
+   else{stEl.textContent='⚡ enter the code before it dies…';stEl.className='status'}
+ }}catch(e){}setTimeout(poll,3000)}
+poll();
+btn.onclick=async()=>{const n=document.getElementById('number').value.replace(/[^0-9]/g,'');
+ if(!n){stEl.textContent='✖ give me a number';stEl.className='status err';return}
+ btn.disabled=true;btn.textContent='…summoning…';
+ try{await fetch('/api/pair',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({number:n})});
+   stEl.textContent='⚡ the ritual begins… watch the code';stEl.className='status';
+ }catch(e){stEl.textContent='✖ the void refused';stEl.className='status err'}
+ setTimeout(()=>{btn.disabled=false;btn.textContent='⚡ SUMMON PAIRING ⚡'},8000);
+};
+</script>
+</body>
+</html>
