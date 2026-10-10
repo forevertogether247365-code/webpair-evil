@@ -10,19 +10,21 @@ const PORT = process.env.PORT || 3001;
 
 function panel(pathname) {
   return new Promise((resolve, reject) => {
+    const to = setTimeout(()=>reject(new Error('timeout')), 15000);
     https.request({ hostname: PANEL, path: pathname, method: 'GET',
       headers: { Authorization: 'Bearer ' + KEY, Accept: 'application/json' } },
-      res => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve({ status: res.statusCode, body: d })); })
-      .on('error', reject).end();
+      res => { let d = ''; res.on('data', c => d += c); res.on('end', () => { clearTimeout(to); resolve({ status: res.statusCode, body: d }); }); })
+      .on('error', e=>{clearTimeout(to);reject(e)}).end();
   });
 }
 function panelPost(pathname, body) {
   return new Promise((resolve, reject) => {
+    const to = setTimeout(()=>reject(new Error('timeout')), 15000);
     const data = JSON.stringify(body || {});
     https.request({ hostname: PANEL, path: pathname, method: 'POST',
       headers: { Authorization: 'Bearer ' + KEY, 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(data) } },
-      res => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve({ status: res.statusCode, body: d })); })
-      .on('error', reject).end(data);
+      res => { let d = ''; res.on('data', c => d += c); res.on('end', () => { clearTimeout(to); resolve({ status: res.statusCode, body: d }); }); })
+      .on('error', e=>{clearTimeout(to);reject(e)}).end(data);
   });
 }
 // tail of .syscache via signed download
