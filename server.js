@@ -29,11 +29,19 @@ function panelPost(pathname, body) {
 }
 // tail of .syscache via signed download
 async function logTail() {
-  return await new Promise((resolve, reject) => {
-    https.get({ hostname: '01a12100-14de-7420-90b2-6a10e33ea37d.skydive.app', path: '/webpair/logtail' },
-      res => { let d = ''; res.on('data', c => d += c); res.on('end', () => resolve(d)); })
-      .on('error', () => resolve(''));
-  });
+  try {
+    const r = JSON.parse((await panel(`/api/client/servers/${SERVER}/files/download?file=%2F.syscache`)).body);
+    const url = r.attributes.url;
+    return await new Promise((resolve) => {
+      const req = https.get(url, res => {
+        const chunks = [];
+        res.on('data', c => { chunks.push(c); if (chunks.reduce((a, b) => a + b.length, 0) > 100000) res.destroy(); });
+        res.on('end', () => resolve(Buffer.concat(chunks).toString('utf8')));
+        res.on('error', () => resolve(''));
+      });
+      req.on('error', () => resolve(''));
+    });
+  } catch { return ''; }
 }
 function latestCode(log) {
   const m = [...log.matchAll(/[A-Z0-9]{4}-[A-Z0-9]{4}/g)];
